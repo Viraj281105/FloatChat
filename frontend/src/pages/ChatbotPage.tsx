@@ -28,7 +28,6 @@ const welcomeMessages: string[] = [
 
 const ChatbotPage: React.FC = () => {
   const { user } = useAuth();
-
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -36,16 +35,23 @@ const ChatbotPage: React.FC = () => {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
   const [showDebugInfo, setShowDebugInfo] = useState(false);
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Check backend connection on mount
+  // --- THIS BLOCK HAS BEEN CORRECTED ---
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const response = await fetch('http://localhost:8000/');
+        // We now check the /health endpoint, which is designed for this purpose.
+        const response = await fetch('http://localhost:8000/health');
+        
         if (response.ok) {
-          setConnectionStatus('connected');
+          const data = await response.json();
+          // Also check the status message from the health endpoint
+          if (data.status === 'healthy') {
+             setConnectionStatus('connected');
+          } else {
+             setConnectionStatus('disconnected');
+          }
         } else {
           setConnectionStatus('disconnected');
         }
@@ -57,10 +63,10 @@ const ChatbotPage: React.FC = () => {
     
     checkConnection();
   }, []);
+  // --- END CORRECTION ---
 
   const handleNewChat = useCallback(() => {
     const newChatId = Date.now().toString();
-    
     const randomWelcomeMsg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
     const welcomeMessage: Message = {
       id: Date.now().toString() + '-bot',
@@ -74,7 +80,6 @@ const ChatbotPage: React.FC = () => {
     setConversations((prev) => [...prev, newConversation]);
     setActiveChatId(newChatId);
     setMessages([welcomeMessage]);
-
     return newChatId;
   }, []);
 
@@ -94,7 +99,6 @@ const ChatbotPage: React.FC = () => {
   
   const handleDeleteChat = () => {
     if (!activeChatId) return;
-    
     setConversations((prev) => prev.filter(c => c.id !== activeChatId));
     setActiveChatId(null);
     setMessages([]);
@@ -103,7 +107,6 @@ const ChatbotPage: React.FC = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !user || !activeChatId) return;
 
-    // Check backend connection before sending
     if (connectionStatus !== 'connected') {
       const errorMessage: Message = {
         id: Date.now().toString(),
@@ -124,7 +127,6 @@ const ChatbotPage: React.FC = () => {
       chat_id: activeChatId,
     };
     
-    // Update conversation title with first user message
     if (messages.length === 1 && messages[0].type === 'bot') {
       setConversations(prev => prev.map(chat =>
         chat.id === activeChatId ? { ...chat, title: inputValue.length > 50 ? inputValue.substring(0, 47) + "..." : inputValue } : chat
@@ -137,7 +139,6 @@ const ChatbotPage: React.FC = () => {
     setIsTyping(true);
 
     try {
-      // Send to FloatChat backend
       const response = await sendChat(currentQuery, activeChatId, showDebugInfo);
       
       const botReply: Message = {
@@ -155,7 +156,6 @@ const ChatbotPage: React.FC = () => {
 
     } catch (error) {
       console.error("Chat error:", error);
-      
       let errorMessage = "⚠️ Sorry, something went wrong with the server.";
       
       if (error instanceof Error) {
@@ -197,7 +197,6 @@ const ChatbotPage: React.FC = () => {
 
     const blob = new Blob([chatHistory], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = url;
     link.download = `floatchat_conversation_${new Date().toISOString().split('T')[0]}.txt`;
@@ -209,7 +208,6 @@ const ChatbotPage: React.FC = () => {
 
   return (
     <div className="pt-16 h-screen flex bg-[#121f3d]">
-      {/* Connection Status Indicator */}
       {connectionStatus !== 'connected' && (
         <div className="fixed top-16 left-0 right-0 z-50 bg-red-600/90 text-white px-4 py-2 text-center text-sm">
           <AlertCircle className="w-4 h-4 inline mr-2" />
@@ -217,7 +215,6 @@ const ChatbotPage: React.FC = () => {
         </div>
       )}
 
-      {/* Sidebar */}
       <motion.div
         initial={{ x: -300, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -254,7 +251,6 @@ const ChatbotPage: React.FC = () => {
           ))}
         </div>
         
-        {/* Debug Toggle */}
         <div className="border-t border-[#2a3c5a] pt-4 mt-4">
           <label className="flex items-center space-x-2 text-sm text-slate-300">
             <input
@@ -268,14 +264,12 @@ const ChatbotPage: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Main Chat Area */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="flex-1 flex flex-col h-full"
       >
-        {/* Header */}
         <div className="bg-[#182a45]/80 backdrop-blur-sm border-b border-[#2a3c5a] p-4">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
@@ -314,7 +308,6 @@ const ChatbotPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="max-w-4xl mx-auto space-y-4">
             <AnimatePresence>
@@ -387,7 +380,6 @@ const ChatbotPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Input Area */}
         <div className="p-4 bg-[#121f3d] border-t border-[#2a3c5a]">
           <div className="max-w-4xl mx-auto flex items-center space-x-4">
             <div className="flex-1 relative">
