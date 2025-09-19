@@ -8,3 +8,5 @@ plotly==5.17.0
 python-multipart==0.0.6
 supabase==2.3.0
 postgrest==0.13.0
+chromadb==0.4.24
+sentence-transformers==2.7.0
