@@ -9,6 +9,13 @@ FloatChat is an AI-powered conversational platform for exploring global oceanogr
   * **Advanced Analytics:** Get AI-powered insights and trend analysis for temperature, salinity, and other key ocean parameters.
   * **On-the-Fly Visualizations:** Generate charts and maps directly from your conversation.
 
+## 🛠️ Technology Stack
+
+  * **Frontend:** React, Vite, TypeScript, Tailwind CSS
+  * **Backend:** Python, FastAPI
+  * **Database:** Supabase (PostgreSQL)
+  * **AI:** Retrieval-Augmented Generation (RAG) pipelines
+
 ## 🚀 Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -21,7 +28,7 @@ Before you begin, ensure you have the following installed on your system:
   * [Python](https://www.python.org/downloads/) (version 3.9+)
   * [Node.js](https://nodejs.org/) (version 18+) and npm
 
-### 🛠️ Installation & Setup
+### ⚙️ Installation & Setup
 
 Follow these steps to set up your local development environment.
 
@@ -54,8 +61,6 @@ source venv/bin/activate
 # Install the required Python packages
 pip install -r requirements.txt
 ```
-
-> **Developer Note:** If `requirements.txt` is missing, you can create it from the original machine by running `pip freeze > requirements.txt` inside the activated backend environment.
 
 **3. Set Up the Frontend (React)**
 
@@ -119,3 +124,53 @@ npm run dev
 ```
 
 The React application should now be running. You can view it in your browser at `http://localhost:5173`.
+
+## 🤝 Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please follow these steps.
+
+1.  **Fork the Project**
+    Click the 'Fork' button in the top right of the repository page. This creates your own copy of the project.
+
+2.  **Clone Your Fork**
+
+    ```bash
+    git clone https://github.com/your-username/FloatChat.git
+    ```
+
+3.  **Create your Feature Branch**
+    Create a new branch to work on your feature or bug fix.
+
+    ```bash
+    git checkout -b feature/AmazingFeature
+    ```
+
+4.  **Commit your Changes**
+    Make your changes and commit them with a descriptive message.
+
+    ```bash
+    git add .
+    git commit -m "Add some AmazingFeature"
+    ```
+
+5.  **Push to the Branch**
+    Push your changes up to your forked repository on GitHub.
+
+    ```bash
+    git push origin feature/AmazingFeature
+    ```
+
+6.  **Open a Pull Request**
+    Go to your repository on GitHub and click the 'Compare & pull request' button to open a new Pull Request to the original repository.
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 📧 Contact
+
+Viraj - [@your\_twitter\_handle](https://www.google.com/search?q=https://twitter.com/your_twitter_handle)
+
+Project Link: [https://github.com/Viraj281105/FloatChat](https://www.google.com/search?q=https://github.com/Viraj281105/FloatChat)
