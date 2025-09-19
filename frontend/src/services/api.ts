@@ -2,35 +2,27 @@ const API_BASE_URL = 'http://localhost:8000';
 
 export interface ChatResponse {
   success: boolean;
-  response: any;
+  response: string;
   source_agent: string;
-  session_id: string;
-  processing_time: number;
-  timestamp: string;
+  processing_time?: number;
   debug_info?: Record<string, unknown>;
   error_details?: string;
 }
 
 export const sendChat = async (
-  query: string, 
-  sessionId: string, 
-  includeDebug: boolean = false
+  query: string,
+  sessionId: string
 ): Promise<ChatResponse> => {
   try {
     const response = await fetch(`${API_BASE_URL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        session_id: sessionId,
-        include_debug: includeDebug,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, session_id: sessionId }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
     }
 
     return await response.json();
@@ -41,6 +33,12 @@ export const sendChat = async (
 };
 
 export const getSystemHealth = async () => {
-  const response = await fetch(`${API_BASE_URL}/health`);
-  return response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}/health`);
+    if (!response.ok) throw new Error('Health check failed');
+    return response.json();
+  } catch (error) {
+    console.error('Health API failed:', error);
+    return { status: 'disconnected' };
+  }
 };

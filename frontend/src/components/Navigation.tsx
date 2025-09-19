@@ -23,15 +23,22 @@ const Navigation = () => {
     { name: 'Profile', href: '/profile', icon: User, public: false },
   ];
 
-  const isActive = (href: string) => location.pathname === href;
+  // ✅ Updated to allow partial route matches
+  const isActive = (href: string) => location.pathname.startsWith(href);
+
   const visibleItems = user ? navigationItems : navigationItems.filter(item => item.public);
+
+  // ✅ Async-safe signOut for mobile menu
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-sm border-b border-slate-700/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            {/* 2. Replaced the placeholder div with an img tag */}
             <img className="h-8 w-8" src={heroLogo} alt="FloatChat Logo" />
             <span className="text-white font-bold text-xl">FloatChat</span>
           </Link>
@@ -123,10 +130,7 @@ const Navigation = () => {
             
             {user ? (
               <button
-                onClick={() => {
-                  signOut();
-                  setIsMobileMenuOpen(false);
-                }}
+                onClick={handleSignOut}
                 className="flex items-center space-x-3 px-3 py-3 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors w-full"
               >
                 <LogOut className="w-5 h-5" />

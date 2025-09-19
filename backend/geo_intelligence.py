@@ -1,13 +1,11 @@
 # geo_intelligence.py
 from typing import Dict, List, Optional, Any
-import json
 
 
 class GeoIntelligenceExpert:
     """
-    A comprehensive geographic intelligence system for oceanographic regions and topics.
-    
-    This expert system provides detailed knowledge about:
+    Comprehensive geographic intelligence system for oceanographic regions and topics.
+    Provides detailed knowledge about:
     - Major ocean basins and their characteristics
     - Regional oceanographic phenomena
     - Marine geography and bathymetry
@@ -16,14 +14,12 @@ class GeoIntelligenceExpert:
     """
 
     def __init__(self):
-        """Initialize the expert system with comprehensive knowledge base."""
+        """Initialize the expert system with a knowledge base."""
         self._initialize_knowledge_base()
         print("GeoIntelligenceExpert initialized with comprehensive knowledge base.")
 
     def _initialize_knowledge_base(self) -> None:
-        """Initialize the comprehensive knowledge base."""
-        
-        # Define major oceanographic regions and their detailed information
+        """Initialize regions and topics knowledge base."""
         self._regions = {
             "arabian_sea": {
                 "name": "Arabian Sea",
@@ -43,7 +39,6 @@ class GeoIntelligenceExpert:
                 "economic_importance": "Major fishing grounds, oil transportation routes, pearl diving industry",
                 "coordinates": {"lat_range": [8, 27], "lon_range": [50, 78]}
             },
-            
             "bay_of_bengal": {
                 "name": "Bay of Bengal",
                 "description": "The largest bay in the world, located in the northeastern part of the Indian Ocean.",
@@ -62,7 +57,6 @@ class GeoIntelligenceExpert:
                 "economic_importance": "Dense fishing activity, major ports (Chennai, Kolkata, Chittagong)",
                 "coordinates": {"lat_range": [5, 22], "lon_range": [77, 97]}
             },
-            
             "north_atlantic": {
                 "name": "North Atlantic Ocean",
                 "description": "The northern portion of the Atlantic Ocean, extending from the equator to the Arctic.",
@@ -82,7 +76,6 @@ class GeoIntelligenceExpert:
                 "economic_importance": "Transatlantic shipping, fishing, offshore oil/gas",
                 "coordinates": {"lat_range": [0, 80], "lon_range": [-80, 20]}
             },
-            
             "pacific_ocean": {
                 "name": "Pacific Ocean",
                 "description": "The largest and deepest ocean basin, covering about one-third of Earth's surface.",
@@ -100,9 +93,8 @@ class GeoIntelligenceExpert:
                     "Equatorial Counter Current"
                 ],
                 "economic_importance": "Major fisheries, transpacific trade routes, tourism",
-                "coordinates": {"lat_range": [-60, 65], "lon_range": [120, -70]}
+                "coordinates": {"lat_range": [-60, 65], "lon_range": [120, 290]}  # normalized longitude
             },
-            
             "indian_ocean": {
                 "name": "Indian Ocean",
                 "description": "The third largest ocean, bounded by Africa, Asia, and Australia.",
@@ -124,7 +116,6 @@ class GeoIntelligenceExpert:
             }
         }
 
-        # Define topics and their detailed information
         self._topics = {
             "monsoon": {
                 "description": "Seasonal wind patterns that dramatically affect regional climate and oceanography",
@@ -141,7 +132,6 @@ class GeoIntelligenceExpert:
                     "Salinity changes due to precipitation and river runoff"
                 ]
             },
-            
             "currents": {
                 "description": "Ocean current systems that transport heat, nutrients, and marine life",
                 "subtopics": {
@@ -157,7 +147,6 @@ class GeoIntelligenceExpert:
                     "Pollutant and debris transport pathways"
                 ]
             },
-            
             "bathymetry": {
                 "description": "The study of underwater topography and ocean floor features",
                 "subtopics": {
@@ -173,7 +162,6 @@ class GeoIntelligenceExpert:
                     "Important for navigation and resource exploration"
                 ]
             },
-            
             "climate": {
                 "description": "Long-term weather patterns and their interaction with ocean systems",
                 "subtopics": {
@@ -191,112 +179,138 @@ class GeoIntelligenceExpert:
             }
         }
 
+    # ---------- Region & Topic Utilities ----------
     def get_known_regions(self) -> List[str]:
-        """
-        Get list of all known regions in the knowledge base.
-        
-        Returns:
-            List of region identifiers
-        """
         return list(self._regions.keys())
 
     def get_known_topics(self) -> List[str]:
-        """
-        Get list of all known topics in the knowledge base.
-        
-        Returns:
-            List of topic identifiers
-        """
         return list(self._topics.keys())
 
+    # ---------- Core Methods ----------
     def get_info(self, region: str, topic: Optional[str] = None, sub_topic: Optional[str] = None) -> str:
-        """
-        Get detailed information about a region and optionally a specific topic.
-        
-        Args:
-            region: Region identifier (e.g., 'arabian_sea')
-            topic: Optional topic identifier (e.g., 'monsoon')
-            sub_topic: Optional sub-topic identifier (e.g., 'southwest')
-            
-        Returns:
-            Formatted information string
-        """
         if region not in self._regions:
             return f"I don't have information about the region '{region}'. Available regions: {', '.join(self.get_known_regions())}"
-        
         region_data = self._regions[region]
-        
+
         if not topic:
-            # Return comprehensive region information
+            # Comprehensive region info
             info = [
                 f"**{region_data['name']}**",
                 f"\n{region_data['description']}\n",
                 "**Key Features:**"
             ]
-            
-            for feature in region_data['key_features']:
-                info.append(f"• {feature}")
-            
-            info.extend([
+            info += [f"• {feature}" for feature in region_data['key_features']]
+            info += [
                 f"\n**Bathymetry:** {region_data['bathymetry']}",
                 f"\n**Major Currents:** {', '.join(region_data['major_currents'])}",
                 f"\n**Economic Importance:** {region_data['economic_importance']}"
-            ])
-            
+            ]
             return "\n".join(info)
-        
-        # Handle topic-specific information for the region
+
         if topic not in self._topics:
             return f"I don't have specific information about '{topic}' for {region_data['name']}. Available topics: {', '.join(self.get_known_topics())}"
-        
+
         topic_data = self._topics[topic]
         response = [
             f"**{topic.title()} in {region_data['name']}**",
             f"\n{topic_data['description']}\n"
         ]
-        
-        # Add sub-topic information if requested
-        if sub_topic and 'subtopics' in topic_data:
-            if sub_topic in topic_data['subtopics']:
+
+        # Normalize subtopic input
+        if sub_topic:
+            sub_topic = sub_topic.replace(" ", "_")
+            if sub_topic in topic_data.get("subtopics", {}):
                 response.append(f"**{sub_topic.replace('_', ' ').title()}:** {topic_data['subtopics'][sub_topic]}")
             else:
-                response.append(f"Available subtopics for {topic}: {', '.join(topic_data['subtopics'].keys())}")
-        elif 'subtopics' in topic_data:
+                response.append(f"Available subtopics for {topic}: {', '.join(topic_data.get('subtopics', {}).keys())}")
+        elif "subtopics" in topic_data:
             response.append("**Subtopics:**")
-            for subtopic, description in topic_data['subtopics'].items():
-                response.append(f"• **{subtopic.replace('_', ' ').title()}:** {description}")
-        
-        # Add region-specific context
+            for sub, desc in topic_data["subtopics"].items():
+                response.append(f"• **{sub.replace('_', ' ').title()}:** {desc}")
+
+        # Region-specific context
         if topic == "monsoon" and region in ["arabian_sea", "bay_of_bengal"]:
             response.append(f"\nIn the {region_data['name']}, monsoons significantly influence:")
-            response.append("• Current patterns and directions")
-            response.append("• Sea surface temperatures")
-            response.append("• Fishing seasons and marine productivity")
-            response.append("• Coastal weather and precipitation")
-        
+            response += [
+                "• Current patterns and directions",
+                "• Sea surface temperatures",
+                "• Fishing seasons and marine productivity",
+                "• Coastal weather and precipitation"
+            ]
+
         return "\n".join(response)
 
     def list_regions(self) -> str:
-        """
-        List all available regions with brief descriptions.
-        
-        Returns:
-            Formatted list of regions
-        """
+        """List all available regions with brief descriptions."""
         regions_list = ["**Available Ocean Regions:**\n"]
-        
         for region_id, region_data in self._regions.items():
             regions_list.append(f"• **{region_data['name']}** - {region_data['description']}")
-        
         return "\n".join(regions_list)
 
+    def list_topics(self, region: Optional[str] = None) -> str:
+        """List available topics, optionally for a specific region."""
+        if region and region in self._regions:
+            response = [f"**Available topics for {self._regions[region]['name']}:**\n"]
+        else:
+            response = ["**Available Topics:**\n"]
+
+        for topic_id, topic_data in self._topics.items():
+            response.append(f"• **{topic_id.title()}** - {topic_data['description']}")
+        response.append("\nYou can combine any topic with a region for specific information!")
+        return "\n".join(response)
+
+    def answer_general_question(self, topic: str) -> str:
+        """Answer general questions about oceanographic topics."""
+        if topic not in self._topics:
+            return f"I don't have information about '{topic}'. Available topics: {', '.join(self.get_known_topics())}"
+        topic_data = self._topics[topic]
+        response = [
+            f"**{topic.title()} - General Information**",
+            f"\n{topic_data['description']}\n"
+        ]
+
+        if "subtopics" in topic_data:
+            response.append("**Key Aspects:**")
+            for sub, desc in topic_data["subtopics"].items():
+                response.append(f"• **{sub.replace('_', ' ').title()}:** {desc}")
+
+        # Additional global context
+        if topic == "monsoon":
+            response += [
+                "\n**Global Impact:**",
+                "• Affects approximately 3 billion people worldwide",
+                "• Critical for agriculture and water resources",
+                "• Influences global weather patterns",
+                "• Drives seasonal ocean circulation changes"
+            ]
+        elif topic == "currents":
+            response += [
+                "\n**Global Significance:**",
+                "• Transport heat equivalent to 100 times global energy consumption",
+                "• Critical for marine ecosystems and food webs",
+                "• Influence global climate and weather patterns",
+                "• Affect navigation, fishing, and marine transportation"
+            ]
+
+        return "\n".join(response)
+
+    def search_by_coordinates(self, latitude: float, longitude: float) -> Optional[str]:
+        """Find which region contains the given coordinates."""
+        # Normalize longitude to 0-360 if negative
+        if longitude < 0:
+            longitude += 360
+
+        for region_id, region_data in self._regions.items():
+            coords = region_data.get("coordinates", {})
+            lat_range = coords.get("lat_range", [])
+            lon_range = coords.get("lon_range", [])
+            if lat_range and lon_range:
+                if lat_range[0] <= latitude <= lat_range[1] and lon_range[0] <= longitude <= lon_range[1]:
+                    return region_id
+        return None
+
     def get_region_stats(self) -> Dict[str, Any]:
-        """
-        Get statistical information about the knowledge base.
-        
-        Returns:
-            Dictionary containing knowledge base statistics
-        """
+        """Get statistical information about the knowledge base."""
         return {
             "total_regions": len(self._regions),
             "total_topics": len(self._topics),
@@ -307,92 +321,3 @@ class GeoIntelligenceExpert:
 
 # Create a single global instance to be imported by other modules
 expert = GeoIntelligenceExpert()
-
-class GeoIntelligenceExpert:
-    # ... (existing methods above)
-
-    def list_topics(self, region: Optional[str] = None) -> str:
-        """
-        List available topics, optionally for a specific region.
-        
-        Args:
-            region: Optional region to get specific topic information
-            
-        Returns:
-            Formatted list of topics
-        """
-        if region and region in self._regions:
-            response = [f"**Available topics for {self._regions[region]['name']}:**\n"]
-        else:
-            response = ["**Available Topics:**\n"]
-        
-        for topic_id, topic_data in self._topics.items():
-            response.append(f"• **{topic_id.title()}** - {topic_data['description']}")
-        
-        response.append("\nYou can combine any topic with a region for specific information!")
-        return "\n".join(response)
-
-    def answer_general_question(self, topic: str) -> str:
-        """
-        Answer general questions about oceanographic topics.
-        
-        Args:
-            topic: Topic identifier
-            
-        Returns:
-            General information about the topic
-        """
-        if topic not in self._topics:
-            return f"I don't have information about '{topic}'. Available topics: {', '.join(self.get_known_topics())}"
-        
-        topic_data = self._topics[topic]
-        response = [
-            f"**{topic.title()} - General Information**",
-            f"\n{topic_data['description']}\n"
-        ]
-        
-        if 'subtopics' in topic_data:
-            response.append("**Key Aspects:**")
-            for subtopic, description in topic_data['subtopics'].items():
-                response.append(f"• **{subtopic.replace('_', ' ').title()}:** {description}")
-        
-        # Add additional context based on topic
-        if topic == "monsoon":
-            response.extend([
-                "\n**Global Impact:**",
-                "• Affects approximately 3 billion people worldwide",
-                "• Critical for agriculture and water resources",
-                "• Influences global weather patterns",
-                "• Drives seasonal ocean circulation changes"
-            ])
-        elif topic == "currents":
-            response.extend([
-                "\n**Global Significance:**",
-                "• Transport heat equivalent to 100 times global energy consumption",
-                "• Critical for marine ecosystems and food webs",
-                "• Influence global climate and weather patterns",
-                "• Affect navigation, fishing, and marine transportation"
-            ])
-        
-        return "\n".join(response)
-
-    def search_by_coordinates(self, latitude: float, longitude: float) -> Optional[str]:
-        """
-        Find which region contains the given coordinates.
-        
-        Args:
-            latitude: Latitude in decimal degrees
-            longitude: Longitude in decimal degrees
-            
-        Returns:
-            Region identifier if found, None otherwise
-        """
-        for region_id, region_data in self._regions.items():
-            if 'coordinates' in region_data:
-                coords = region_data['coordinates']
-                lat_range = coords['lat_range']
-                lon_range = coords['lon_range']
-                if (lat_range[0] <= latitude <= lat_range[1] and
-                    lon_range[0] <= longitude <= lon_range[1]):
-                    return region_id
-        return None

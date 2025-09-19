@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Filter, MapPin, Layers, AlertTriangle, Loader } from 'lucide-react';
-
-// NEW: Import the Plotly component
+import { Filter, AlertTriangle, Loader } from 'lucide-react';
 import Plot from 'react-plotly.js';
 
-// --- Type definitions (simplified for this approach) ---
+// --- Type definitions ---
+type Parameter = {
+  id: string;
+  label: string;
+  unit: string;
+  color: string;
+};
+
 type ErrorDisplayProps = {
   message: string | null;
 };
 
 // --- Helper Components ---
 const LoadingIndicator = () => (
-    <div className="flex flex-col items-center justify-center h-[75vh] text-slate-400">
-      <Loader className="w-12 h-12 animate-spin mb-4 text-cyan-400" />
-      <p className="text-lg">Generating Visualization...</p>
-      <p>This may take a moment.</p>
-    </div>
+  <div className="flex flex-col items-center justify-center h-[75vh] text-slate-400">
+    <Loader className="w-12 h-12 animate-spin mb-4 text-cyan-400" />
+    <p className="text-lg">Generating Visualization...</p>
+    <p>This may take a moment.</p>
+  </div>
 );
 
 const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
@@ -27,20 +32,20 @@ const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
   </div>
 );
 
-const parameters = [
-    { id: 'temperature', label: 'Temperature', unit: '°C', color: '#F59E0B' },
-    { id: 'salinity', label: 'Salinity', unit: 'PSU', color: '#3B82F6' },
-    { id: 'oxygen', label: 'Dissolved O₂', unit: 'μmol/kg', color: '#10B981' },
-    { id: 'chlorophyll', label: 'Chlorophyll', unit: 'mg/m³', color: '#8B5CF6' },
+// --- Parameters ---
+const parameters: Parameter[] = [
+  { id: 'temperature', label: 'Temperature', unit: '°C', color: '#F59E0B' },
+  { id: 'salinity', label: 'Salinity', unit: 'PSU', color: '#3B82F6' },
+  { id: 'oxygen', label: 'Dissolved O₂', unit: 'μmol/kg', color: '#10B981' },
+  { id: 'chlorophyll', label: 'Chlorophyll', unit: 'mg/m³', color: '#8B5CF6' },
 ];
 
 const DashboardPage = () => {
   const [selectedParameter, setSelectedParameter] = useState('temperature');
   const [dateRange, setDateRange] = useState('6months');
   const [selectedRegion, setSelectedRegion] = useState('global');
-
-  // MODIFIED: State to hold the Plotly figure JSON. 'any' is acceptable here.
-  const [plotFigure, setPlotFigure] = useState<any | null>(null);
+  const [mapFigure, setMapFigure] = useState<any | null>(null);
+  const [chartFigure, setChartFigure] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +53,8 @@ const DashboardPage = () => {
     const fetchVisualizationData = async () => {
       setIsLoading(true);
       setError(null);
-      setPlotFigure(null); // Clear previous plot
+      setMapFigure(null);
+      setChartFigure(null);
 
       try {
         const response = await fetch('http://localhost:8000/visualize', {
@@ -58,26 +64,30 @@ const DashboardPage = () => {
             parameter: selectedParameter,
             date_range: dateRange,
             region: selectedRegion,
+            mode: 'dashboard',
           }),
         });
-        
-        // The entire response body is the Plotly JSON, we parse it directly
+
         const figureJson = await response.json();
 
         if (!response.ok) {
-          // If the server sent a JSON error object, use its details
-          throw new Error(figureJson.error_details || 'Failed to fetch plot data.');
+          throw new Error(figureJson.error_details || figureJson.message || 'Failed to fetch plot data.');
         }
-        
-        setPlotFigure(figureJson);
+
+        setMapFigure(figureJson.map_figure ? JSON.parse(figureJson.map_figure) : null);
+        setChartFigure(figureJson.chart_figure ? JSON.parse(figureJson.chart_figure) : null);
+
+        if (!figureJson.map_figure && !figureJson.chart_figure) {
+          setError(figureJson.message || 'No visualization returned.');
+        }
 
       } catch (err) {
         if (err instanceof Error) {
-            console.error("API Error:", err);
-            setError(err.message);
+          console.error("API Error:", err);
+          setError(err.message);
         } else {
-            console.error("An unknown error occurred:", err);
-            setError("An unexpected error occurred. The response may not be valid JSON.");
+          console.error("Unexpected error:", err);
+          setError("An unexpected error occurred.");
         }
       } finally {
         setIsLoading(false);
@@ -97,16 +107,14 @@ const DashboardPage = () => {
       {/* Header */}
       <div className="bg-[#182a45]/80 backdrop-blur-sm border-b border-[#2a3c5a] p-6">
         <div className="max-w-7xl mx-auto">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Ocean Data Dashboard</h1>
-            <p className="text-slate-400">Interactive exploration of ARGO float measurements</p>
-          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Ocean Data Dashboard</h1>
+          <p className="text-slate-400">Interactive exploration of ARGO float measurements</p>
         </div>
       </div>
 
       <div className="max-w-screen-2xl mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Filters Sidebar (No changes here) */}
+          {/* Filters Sidebar */}
           <motion.div
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -118,6 +126,8 @@ const DashboardPage = () => {
                 <Filter className="w-5 h-5 text-cyan-400" />
                 <h2 className="text-lg font-semibold text-white">Filters</h2>
               </div>
+
+              {/* Parameter Filter */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-300 mb-3">Parameter</label>
                 <div className="space-y-2">
@@ -132,7 +142,7 @@ const DashboardPage = () => {
                       }`}
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: param.color }}/>
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: param.color }} />
                         <div>
                           <p className="font-medium">{param.label}</p>
                           <p className="text-sm opacity-75">{param.unit}</p>
@@ -142,19 +152,29 @@ const DashboardPage = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Date Range */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-300 mb-3">Date Range</label>
-                <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-300 focus:border-cyan-500/50 focus:outline-none">
+                <select
+                  value={dateRange}
+                  onChange={(e) => setDateRange(e.target.value)}
+                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-300 focus:border-cyan-500/50 focus:outline-none"
+                >
                   <option value="6months">Last 6 Months</option>
                   <option value="1year">Last Year</option>
                   <option value="5years">Last 5 Years</option>
                 </select>
               </div>
+
+              {/* Region */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-3">Region</label>
-                <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-300 focus:border-cyan-500/50 focus:outline-none">
+                <select
+                  value={selectedRegion}
+                  onChange={(e) => setSelectedRegion(e.target.value)}
+                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-300 focus:border-cyan-500/50 focus:outline-none"
+                >
                   <option value="global">Global Ocean</option>
                   <option value="indian">Indian Ocean</option>
                   <option value="atlantic">North Atlantic</option>
@@ -164,29 +184,48 @@ const DashboardPage = () => {
             </div>
           </motion.div>
 
-          {/* Main Content - Renders the Plotly Figure */}
-          <div className="lg:col-span-3">
+          {/* Main Content - Map + Optional Chart */}
+          <div className="lg:col-span-3 space-y-6">
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               className="bg-[#182a45] rounded-xl p-6 border border-[#2a3c5a]"
             >
-              {isLoading ? ( <LoadingIndicator /> ) 
-              : error ? ( <ErrorDisplay message={error} /> ) 
-              : plotFigure ? (
-                // NEW: Render the Plotly component here
+              {isLoading ? (
+                <LoadingIndicator />
+              ) : error ? (
+                <ErrorDisplay message={error} />
+              ) : mapFigure ? (
                 <Plot
-                  data={plotFigure.data}
-                  layout={plotFigure.layout}
-                  useResizeHandler={true}
+                  data={mapFigure.data}
+                  layout={mapFigure.layout}
+                  useResizeHandler
                   style={{ width: '100%', height: '75vh' }}
                   config={{ responsive: true }}
                 />
               ) : (
-                <p>No data available for the selected filters.</p>
+                <p>No map data available for the selected filters.</p>
               )}
             </motion.div>
+
+            {/* Optional Chart */}
+            {chartFigure && (
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-[#182a45] rounded-xl p-6 border border-[#2a3c5a]"
+              >
+                <Plot
+                  data={chartFigure.data}
+                  layout={chartFigure.layout}
+                  useResizeHandler
+                  style={{ width: '100%', height: '400px' }}
+                  config={{ responsive: true }}
+                />
+              </motion.div>
+            )}
           </div>
         </div>
       </div>

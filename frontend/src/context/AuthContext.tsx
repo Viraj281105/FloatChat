@@ -29,82 +29,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const savedToken = localStorage.getItem('floatchat_token');
     const savedUser = localStorage.getItem('floatchat_user');
-    
+
     if (savedToken && savedUser) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Error parsing saved user data:', error);
+      } catch {
         localStorage.removeItem('floatchat_token');
         localStorage.removeItem('floatchat_user');
       }
     }
-    
     setLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<void> => {
+  const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // Mock authentication
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((res) => setTimeout(res, 1000));
       const mockToken = `token_${Date.now()}`;
-      const mockUser = {
-        id: `user_${Date.now()}`,
-        email: email,
-        name: email.split('@')[0]
-      };
-
+      const mockUser = { id: `user_${Date.now()}`, email, name: email.split('@')[0] };
       localStorage.setItem('floatchat_token', mockToken);
       localStorage.setItem('floatchat_user', JSON.stringify(mockUser));
-
       setToken(mockToken);
       setUser(mockUser);
-    } catch (error) {
-      throw new Error('Authentication failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string): Promise<void> => {
+  const signUp = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // Mock sign up
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Sign up successful for:', email);
-    } catch (error) {
-      throw new Error('Sign up failed');
+      await new Promise((res) => setTimeout(res, 1000));
     } finally {
       setLoading(false);
     }
   };
 
-  const signOut = (): void => {
+  const signOut = () => {
     localStorage.removeItem('floatchat_token');
     localStorage.removeItem('floatchat_user');
     setToken(null);
     setUser(null);
   };
 
-  const value: AuthContextType = {
-    user,
-    token,
-    signIn,
-    signUp,
-    signOut,
-    loading
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, token, signIn, signUp, signOut, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
