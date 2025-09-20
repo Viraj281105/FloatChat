@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 const LogoPlaceholder = () => (
   <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
@@ -12,6 +13,7 @@ const LogoPlaceholder = () => (
 const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,6 +57,7 @@ const SignUpPage = () => {
           <h1 className="text-3xl text-white font-bold">Create Your Account</h1>
           <p className="text-slate-400">Join FloatChat to explore ocean data.</p>
         </div>
+
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
             <label className="text-sm text-slate-400 mb-2 block">Email</label>
@@ -67,17 +70,26 @@ const SignUpPage = () => {
               required
             />
           </div>
-          <div>
+
+          <div className="relative">
             <label className="text-sm text-slate-400 mb-2 block">Password</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+              className="w-full p-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 pr-10"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-cyan-400"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
+
           <button
             type="submit"
             disabled={isLoading}
@@ -85,8 +97,10 @@ const SignUpPage = () => {
           >
             {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
+
           {error && <p className="text-red-400 text-center text-sm">{error}</p>}
         </form>
+
         <p className="text-center text-slate-400 mt-6">
           Already have an account?{' '}
           <Link to="/signin" className="font-medium text-cyan-400 hover:underline">

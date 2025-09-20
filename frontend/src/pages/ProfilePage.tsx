@@ -9,25 +9,31 @@ interface ProfileData {
   organization: string;
   role: string;
   bio: string;
+  avatar?: string;
 }
 
 const ProfilePage = () => {
   const { user } = useAuth();
+
+  // Initialize profile state safely with defaults
   const [profile, setProfile] = useState<ProfileData>({
     email: user?.email || '',
     full_name: user?.name || '',
     organization: '',
     role: 'Researcher',
     bio: '',
+    avatar: '', // optional
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
-    // Mock save - replace with actual API call
+    // Replace with actual API call later
     console.log('Saving profile:', profile);
     alert('Profile updated successfully!');
   };
@@ -55,6 +61,7 @@ const ProfilePage = () => {
               </button>
             </div>
 
+            {/* Avatar + Name */}
             <div className="flex items-center space-x-6">
               <div className="relative">
                 <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center">
@@ -70,6 +77,7 @@ const ProfilePage = () => {
               </div>
             </div>
 
+            {/* Profile Form */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
@@ -109,7 +117,7 @@ const ProfilePage = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Role</label>
-                <select 
+                <select
                   name="role"
                   value={profile.role}
                   onChange={handleChange}
@@ -123,7 +131,7 @@ const ProfilePage = () => {
                 </select>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Bio</label>
               <textarea
@@ -135,7 +143,7 @@ const ProfilePage = () => {
                 placeholder="Tell us about your research interests or work..."
               />
             </div>
-            
+
             <div className="flex justify-end pt-6 border-t border-slate-700">
               <motion.button
                 whileHover={{ scale: 1.05 }}

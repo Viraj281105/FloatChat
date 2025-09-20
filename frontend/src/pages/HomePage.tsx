@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -6,51 +6,45 @@ import {
   TrendingUp, Users, ArrowRight, Calendar, Thermometer
 } from 'lucide-react';
 
-// Using home-logo for the homepage content
+// Home logo
 import homeLogo from '../assets/images/hero-logo.png';
-import heroLogo from '../assets/images/hero-logo.png';
 
-// Type definition for the VANTA.js global object
-declare const VANTA: {
-  WAVES: (options: Record<string, unknown>) => { destroy: () => void };
-};
+// VANTA.js typing
+declare global {
+  interface Window {
+    VANTA: any;
+  }
+}
 
 const HomePage = () => {
-  const heroRef = useRef(null);
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
 
-  // useEffect hook for VANTA.js animated background
+  // Load VANTA.js dynamically
   useEffect(() => {
-    let vantaEffect: { destroy: () => void } | null = null;
-    
-    if (typeof VANTA !== 'undefined' && heroRef.current) {
-      try {
-        vantaEffect = VANTA.WAVES({
-          el: heroRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          scale: 1.00,
-          scaleMobile: 1.00,
-          color: 0x428b,
-          shininess: 75.00,
-          waveHeight: 30.00,
-          waveSpeed: 0.80,
-          zoom: 0.65
-        });
-      } catch (error) {
-        console.error('VANTA.js failed to initialize:', error);
-      }
-    }
+    if (!window.VANTA || !heroRef.current) return;
 
-    return () => {
-      if (vantaEffect) {
-        vantaEffect.destroy();
-      }
-    };
+    const effect = window.VANTA.WAVES({
+      el: heroRef.current,
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200,
+      minWidth: 200,
+      scale: 1.0,
+      scaleMobile: 1.0,
+      color: 0x428b,
+      shininess: 75,
+      waveHeight: 30,
+      waveSpeed: 0.8,
+      zoom: 0.65,
+    });
+    setVantaEffect(effect);
+
+    return () => effect.destroy();
   }, []);
 
+  // Info cards (replace with backend data when ready)
   const infoCards = [
     { title: '15,847', subtitle: 'Active ARGO Floats', icon: Waves, color: 'from-cyan-500 to-blue-500' },
     { title: 'Dec 15, 2024', subtitle: 'Latest Data Update', icon: Calendar, color: 'from-blue-500 to-indigo-500' },
@@ -71,10 +65,10 @@ const HomePage = () => {
       exit={{ opacity: 0 }}
       className="pt-16"
     >
-      {/* Hero Section with VANTA.js ref */}
+      {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-60 z-10"></div>
-        <div className="relative z-20 max-w-4xl mx-auto px-4 text-center mt-24">
+        <div className="absolute inset-0 bg-black opacity-60 z-10" />
+        <div className="relative z-20 max-w-4xl mx-auto px-4 text-center mt-16 md:mt-24">
           <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }} className="mb-8">
             <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="inline-block mb-6">
               <img src={homeLogo} alt="FloatChat Hero Logo" className="w-40 h-auto" />
@@ -86,8 +80,7 @@ const HomePage = () => {
               AI Powered Ocean Data Chatbot
             </p>
             <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Explore the world's ocean data through natural conversation. 
-              Get instant insights from ARGO float measurements with AI-powered analysis.
+              Explore the world's ocean data through natural conversation. Get instant insights from ARGO float measurements with AI-powered analysis.
             </p>
           </motion.div>
 
@@ -110,7 +103,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Info Cards Section with blue background */}
+      {/* Info Cards */}
       <section className="relative z-10 py-20 px-4 bg-[#066FC1]">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="text-center mb-12">
@@ -135,7 +128,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Why FloatChat Section */}
+      {/* Features Section */}
       <section className="relative z-10 py-20 px-4 bg-slate-900/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="text-center mb-16">
@@ -160,26 +153,24 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Footer Section */}
+      {/* Footer */}
       <footer className="relative z-10 py-16 px-4 bg-[#066FC1] border-t border-slate-700/50">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ y: 30, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="text-center">
-            <div className="flex items-center justify-center space-x-3 mb-6">
-              <img src={homeLogo} alt="FloatChat Logo" className="w-9 h-9" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-cyan-100 to-blue-100 bg-clip-text text-transparent">
-                FloatChat
-              </span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6 mb-6">
-              <Link to="/reports" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">Reports</Link>
-              <a href="#" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">Documentation</a>
-              <a href="#" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">Contact</a>
-              <a href="#" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">API</a>
-            </div>
-            <p className="text-slate-200 text-sm">
-              © 2024 FloatChat. Powered by ARGO Global Ocean Observing System.
-            </p>
-          </motion.div>
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <img src={homeLogo} alt="FloatChat Logo" className="w-9 h-9" />
+            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-100 to-blue-100 bg-clip-text text-transparent">
+              FloatChat
+            </span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 mb-6">
+            <Link to="/reports" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">Reports</Link>
+            <a href="#" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">Documentation</a>
+            <a href="#" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">Contact</a>
+            <a href="#" className="text-slate-200 hover:text-cyan-100 transition-colors duration-200">API</a>
+          </div>
+          <p className="text-slate-200 text-sm">
+            © 2024 FloatChat. Powered by ARGO Global Ocean Observing System.
+          </p>
         </div>
       </footer>
     </motion.div>
