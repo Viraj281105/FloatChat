@@ -8,6 +8,7 @@ pydantic==2.5.0
 # Database and Data
 psycopg2-binary==2.9.9
 pandas==2.1.4
+sqlalchemy>=2.0.0
 
 # Supabase and Dependencies
 supabase==2.5.0

@@ -26,7 +26,7 @@ except ImportError as e:
 # --- Logging Setup ---
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
@@ -63,11 +63,17 @@ async def lifespan(app: FastAPI):
         if not all([DataAgent, GeographicAgent, VisualizationAgent, OrchestratorAgent]):
             raise ImportError("One or more agent classes could not be imported.")
 
+        # Initialize agents only once
+        data_agent = DataAgent()
+        geographic_agent = GeographicAgent()
+        visualization_agent = VisualizationAgent(data_agent)
+
         agents = {
-            "data_agent": DataAgent(),
-            "geographic_agent": GeographicAgent(),
-            "visualization_agent": VisualizationAgent()
+            "data_agent": data_agent,
+            "geographic_agent": geographic_agent,
+            "visualization_agent": visualization_agent
         }
+
         app_state.orchestrator = OrchestratorAgent(agents=agents)
         app_state.is_ready = True
         logger.info("=== All agents initialized successfully. API is Ready! ===")
@@ -105,7 +111,6 @@ async def visualize_endpoint(request: VisualizationRequest):
         viz_agent = app_state.orchestrator.agents.get("visualization_agent")
         task = f"Generate plot for {request.parameter} in {request.region} for {request.date_range}."
         state = request.model_dump()
-
         agent_response = viz_agent.execute(task=task, state=state)
         content = agent_response if isinstance(agent_response, dict) else json.loads(agent_response)
         return JSONResponse(content=content)
