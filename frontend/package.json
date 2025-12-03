@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/supabase-js": "^2.86.0",
     "framer-motion": "^10.18.0",
     "lucide-react": "^0.294.0",
     "plotly.js": "^3.1.0",
@@ -20,7 +20,10 @@
     "react-router-dom": "^6.20.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
+    "@types/geojson-vt": "^3.2.5",
+    "@types/mapbox__point-geometry": "^0.1.4",
+    "@types/mapbox__vector-tile": "^2.0.0",
+    "@types/node": "^20.19.25",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@types/react-plotly.js": "^2.6.3",
@@ -28,7 +31,7 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
-    "typescript": "^5.2.2",
+    "typescript": "^5.9.3",
     "vite": "^7.1.6"
   }
 }
