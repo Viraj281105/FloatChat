@@ -1,40 +1,61 @@
 # FloatChat 🌊
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-54.3%25-3178C6)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-44.1%25-blue)](https://www.python.org/)
+[![React](https://img.shields.io/badge/React-Vite-61DAFB)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688)](https://fastapi.tiangolo.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E)](https://supabase.com/)
+![GitHub stars](https://img.shields.io/github/stars/Viraj281105/FloatChat?style=social)
+
 FloatChat is an AI-powered conversational platform for exploring global oceanographic data from the ARGO float network. Ask questions in natural language and get instant insights, analysis, and visualizations about the state of our oceans.
+
+---
 
 ## ✨ Features
 
-  * **Conversational AI:** Interact with vast datasets using plain English. No code required.
-  * **Global Ocean Coverage:** Access real-time data from thousands of active ARGO floats across all major ocean basins.
-  * **Advanced Analytics:** Get AI-powered insights and trend analysis for temperature, salinity, and other key ocean parameters.
-  * **On-the-Fly Visualizations:** Generate charts and maps directly from your conversation.
+- **Conversational AI** — Interact with vast datasets using plain English. No code required.
+- **Global Ocean Coverage** — Access real-time data from thousands of active ARGO floats across all major ocean basins.
+- **Advanced Analytics** — Get AI-powered insights and trend analysis for temperature, salinity, and other key ocean parameters.
+- **On-the-Fly Visualizations** — Generate charts and maps directly from your conversation.
+
+---
 
 ## 🛠️ Technology Stack
 
-  * **Frontend:** React, Vite, TypeScript, Tailwind CSS
-  * **Backend:** Python, FastAPI
-  * **Database:** Supabase (PostgreSQL)
-  * **AI:** Retrieval-Augmented Generation (RAG) pipelines
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React, Vite, TypeScript, Tailwind CSS |
+| **Backend** | Python, FastAPI, Uvicorn |
+| **Database** | Supabase (PostgreSQL) |
+| **AI** | Retrieval-Augmented Generation (RAG) pipelines |
+
+---
+
+## 📁 Repository Structure
+
+```
+FloatChat/
+├── backend/        # FastAPI server, RAG pipeline, ARGO data integration
+├── frontend/       # React + Vite + TypeScript UI, Tailwind CSS
+├── .gitignore
+└── README.md
+```
+
+---
 
 ## 🚀 Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
 ### Prerequisites
 
-Before you begin, ensure you have the following installed on your system:
+- [Git](https://git-scm.com/)
+- [Python 3.9+](https://www.python.org/downloads/)
+- [Node.js 18+](https://nodejs.org/) and npm
 
-  * [Git](https://git-scm.com/)
-  * [Python](https://www.python.org/downloads/) (version 3.9+)
-  * [Node.js](https://nodejs.org/) (version 18+) and npm
+---
 
 ### ⚙️ Installation & Setup
 
-Follow these steps to set up your local development environment.
-
 **1. Clone the Repository**
-
-First, clone the project from GitHub to your local machine.
 
 ```bash
 git clone https://github.com/Viraj281105/FloatChat.git
@@ -43,134 +64,108 @@ cd FloatChat
 
 **2. Set Up the Backend (Python)**
 
-The backend is powered by FastAPI. We'll set up a virtual environment to manage its dependencies.
-
 ```bash
-# Navigate to the backend directory
 cd backend
 
-# Create a Python virtual environment
+# Create and activate a virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# On Windows:
+# Windows:
 .\venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux:
 source venv/bin/activate
 
-# Install the required Python packages
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 **3. Set Up the Frontend (React)**
 
-The frontend is a React application built with Vite.
-
 ```bash
-# Navigate to the frontend directory from the root
 cd frontend
-
-# Install the required npm packages
 npm install
 ```
 
-**4. Set Up Environment Variables**
+**4. Configure Environment Variables**
 
-You will need to create `.env` files for both the frontend and backend to store your secret keys (like your Supabase API keys).
+Create `.env` files for both services:
 
-  * In the `frontend` folder, create a file named `.env.local`.
-  * In the `backend` folder, create a file named `.env`.
-
-You will need to add your project-specific variables, like your Supabase URL and anon key, to these files.
-
-*Example `frontend/.env.local`:*
-
-```
+**`frontend/.env.local`**
+```env
 VITE_SUPABASE_URL="https://your-project-url.supabase.co"
 VITE_SUPABASE_ANON_KEY="your-supabase-anon-key"
 ```
 
------
+**`backend/.env`**
+```env
+SUPABASE_URL="https://your-project-url.supabase.co"
+SUPABASE_SERVICE_KEY="your-supabase-service-key"
+# Add any other backend keys here
+```
 
-## ධ Running the Application
+> ⚠️ Never commit `.env` or `.env.local` files — they are already listed in `.gitignore`.
 
-You'll need to run the backend and frontend servers in separate terminals.
+---
 
-**1. Start the Backend Server**
+## ▶️ Running the Application
 
-  * Open a terminal and navigate to the `backend` directory.
-  * Make sure your Python virtual environment is activated.
-  * Run the Uvicorn server:
+Run the backend and frontend in **two separate terminals**.
 
-<!-- end list -->
+**Terminal 1 — Backend**
 
 ```bash
-# Make sure you are in the /backend folder and the venv is active
+cd backend
+source venv/bin/activate   # or .\venv\Scripts\activate on Windows
 uvicorn main:app --reload
 ```
 
-The backend API should now be running, typically at `http://127.0.0.1:8000`.
+Backend API running at: 👉 `http://127.0.0.1:8000`
 
-**2. Start the Frontend Development Server**
-
-  * Open a **new** terminal and navigate to the `frontend` directory.
-  * Run the Vite development server:
-
-<!-- end list -->
+**Terminal 2 — Frontend**
 
 ```bash
-# Make sure you are in the /frontend folder
+cd frontend
 npm run dev
 ```
 
-The React application should now be running. You can view it in your browser at `http://localhost:5173`.
+Frontend running at: 👉 `http://localhost:5173`
+
+---
 
 ## 🤝 Contributing
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are welcome and greatly appreciated! To contribute:
 
-If you have a suggestion that would make this better, please follow these steps.
+1. **Fork** the repository on GitHub
+2. **Clone** your fork locally:
+   ```bash
+   git clone https://github.com/your-username/FloatChat.git
+   ```
+3. **Create a feature branch:**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Commit your changes:**
+   ```bash
+   git add .
+   git commit -m "Add your feature description"
+   ```
+5. **Push to your fork:**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+6. **Open a Pull Request** from your fork to the main repository.
 
-1.  **Fork the Project**
-    Click the 'Fork' button in the top right of the repository page. This creates your own copy of the project.
-
-2.  **Clone Your Fork**
-
-    ```bash
-    git clone https://github.com/your-username/FloatChat.git
-    ```
-
-3.  **Create your Feature Branch**
-    Create a new branch to work on your feature or bug fix.
-
-    ```bash
-    git checkout -b feature/AmazingFeature
-    ```
-
-4.  **Commit your Changes**
-    Make your changes and commit them with a descriptive message.
-
-    ```bash
-    git add .
-    git commit -m "Add some AmazingFeature"
-    ```
-
-5.  **Push to the Branch**
-    Push your changes up to your forked repository on GitHub.
-
-    ```bash
-    git push origin feature/AmazingFeature
-    ```
-
-6.  **Open a Pull Request**
-    Go to your repository on GitHub and click the 'Compare & pull request' button to open a new Pull Request to the original repository.
+---
 
 ## 📜 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License.
+
+---
 
 ## 📧 Contact
 
-Viraj - [@your\_twitter\_handle](https://www.google.com/search?q=https://twitter.com/your_twitter_handle)
-
-Project Link: [https://github.com/Viraj281105/FloatChat](https://www.google.com/search?q=https://github.com/Viraj281105/FloatChat)
+**Viraj Jadhao**
+📂 [github.com/Viraj281105](https://github.com/Viraj281105)
+🔗 Project: [github.com/Viraj281105/FloatChat](https://github.com/Viraj281105/FloatChat)
