@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Send, Bot, User, MessageSquare, Plus, Download, Trash2, AlertCircle, Volume2, VolumeX, Radio
+  Send, Bot, User, MessageSquare, Plus, Download, Trash2, AlertCircle, Radio
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { sendChat } from '../services/api';
@@ -37,7 +37,6 @@ const ChatbotPage: React.FC = () => {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
   const [showDebugInfo, setShowDebugInfo] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [diagnosticText, setDiagnosticText] = useState("Initializing sensors...");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -62,24 +61,6 @@ const ChatbotPage: React.FC = () => {
     checkConnection();
   }, []);
 
-  // Text-To-Speech function
-  const speakText = useCallback((text: string) => {
-    if (isMuted || !('speechSynthesis' in window)) return;
-    
-    window.speechSynthesis.cancel();
-    
-    const cleanText = text.replace(/[*#_`[\]]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-    const voices = window.speechSynthesis.getVoices();
-    const advisorVoice = voices.find(v => v.name.includes("Google UK English Male") || v.name.includes("Microsoft David") || v.lang.startsWith("en-GB"));
-    if (advisorVoice) utterance.voice = advisorVoice;
-    
-    utterance.rate = 1.05;
-    utterance.pitch = 0.95;
-    window.speechSynthesis.speak(utterance);
-  }, [isMuted]);
-
   // Create new chat
   const handleNewChat = useCallback(() => {
     const newChatId = Date.now().toString();
@@ -94,9 +75,8 @@ const ChatbotPage: React.FC = () => {
     setConversations(prev => [...prev, { id: newChatId, title: 'Advisor Session' }]);
     setActiveChatId(newChatId);
     setMessages([welcomeMessage]);
-    speakText(randomWelcomeMsg);
     return newChatId;
-  }, [speakText]);
+  }, []);
 
   // Auto-create chat if user exists
   useEffect(() => {
@@ -142,7 +122,6 @@ const ChatbotPage: React.FC = () => {
         timestamp: new Date(),
         chat_id: activeChatId
       }]);
-      speakText("Mainframe connection failed.");
       return;
     }
 
@@ -178,7 +157,6 @@ const ChatbotPage: React.FC = () => {
         debug_info: response.debug_info,
       };
       setMessages(prev => [...prev, botReply]);
-      speakText(response.response);
     } catch (error: any) {
       const errorStr = `⚠️ Processing failure: ${error.message}`;
       setMessages(prev => [...prev, {
@@ -188,7 +166,6 @@ const ChatbotPage: React.FC = () => {
         timestamp: new Date(),
         chat_id: activeChatId
       }]);
-      speakText("An error occurred during computational routing.");
       setConnectionStatus('disconnected');
     } finally { setIsTyping(false); }
   };
@@ -297,18 +274,6 @@ const ChatbotPage: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <motion.button 
-                whileHover={{ scale: 1.05 }} 
-                whileTap={{ scale: 0.95 }} 
-                onClick={() => setIsMuted(prev => !prev)} 
-                className={`p-2.5 rounded-lg border flex items-center justify-center transition-all ${
-                  isMuted 
-                    ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
-                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
