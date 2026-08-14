@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Send, Bot, User, MessageSquare, Plus, Download, Trash2, AlertCircle, Radio
+  Send, Bot, User, MessageSquare, Plus, Download, Trash2, AlertCircle, Radio, Compass, Map, LineChart, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { sendChat } from '../services/api';
@@ -26,6 +26,30 @@ const welcomeMessages: string[] = [
   "Good day, Sir. FloatAdvisor online. Oceanographic sensor array is fully synchronized. How may I assist your analysis today?",
   "Greetings. Core database nodes operational. Ready to parse ARGO float parameters on your command, Sir.",
   "System diagnostics are fully green. I stand ready to assist you in charting temperature and salinity metrics, Sir.",
+];
+
+const quickActions = [
+  {
+    icon: Compass,
+    title: "Geographic Insights",
+    prompt: "Tell me about the key features and currents of the Arabian Sea",
+    description: "Analyze currents, bathymetry, and monsoon effects.",
+    color: "text-blue-600 bg-blue-50 border-blue-100"
+  },
+  {
+    icon: LineChart,
+    title: "Data Insights",
+    prompt: "What is the average temperature and salinity across all regions?",
+    description: "Fetch statistical summaries from profile measurements.",
+    color: "text-emerald-600 bg-emerald-50 border-emerald-100"
+  },
+  {
+    icon: Map,
+    title: "Visualize Ocean Data",
+    prompt: "Show me a map of temperature data in the Bay of Bengal",
+    description: "Generate spatial distributions and monthly averages.",
+    color: "text-purple-600 bg-purple-50 border-purple-100"
+  }
 ];
 
 const ChatbotPage: React.FC = () => {
@@ -74,7 +98,7 @@ const ChatbotPage: React.FC = () => {
     };
     setConversations(prev => [...prev, { id: newChatId, title: 'Advisor Session' }]);
     setActiveChatId(newChatId);
-    setMessages([welcomeMessage]);
+    setMessages(prev => [...prev, welcomeMessage]);
     return newChatId;
   }, []);
 
@@ -88,30 +112,25 @@ const ChatbotPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Delete chat
+  // Delete active chat cleanly
   const handleDeleteChat = () => {
     if (!activeChatId) return;
-    setConversations(prev => prev.filter(c => c.id !== activeChatId));
-    setMessages(prev => prev.filter(m => m.chat_id !== activeChatId));
 
-    setTimeout(() => {
-      setActiveChatId(prev => {
-        const remainingChats = conversations.filter(c => c.id !== prev);
-        if (remainingChats.length > 0) {
-          const nextChatId = remainingChats[0].id;
-          const firstMsg = messages.find(m => m.chat_id === nextChatId);
-          setMessages(firstMsg ? messages.filter(m => m.chat_id === nextChatId) : []);
-          return nextChatId;
-        } else {
-          return null;
-        }
-      });
-    }, 0);
+    setMessages(prev => prev.filter(m => m.chat_id !== activeChatId));
+    setConversations(prevConversations => {
+      const remainingChats = prevConversations.filter(c => c.id !== activeChatId);
+      if (remainingChats.length > 0) {
+        setActiveChatId(remainingChats[0].id);
+      } else {
+        setActiveChatId(null);
+      }
+      return remainingChats;
+    });
   };
 
-  // Send message
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || !user || !activeChatId) return;
+  // Submit query
+  const submitQuery = async (queryText: string) => {
+    if (!queryText.trim() || !user || !activeChatId) return;
 
     if (connectionStatus !== 'connected') {
       const errorMsg = "⚠️ FloatAdvisor is offline. Unable to connect to backend mainframe.";
@@ -128,24 +147,23 @@ const ChatbotPage: React.FC = () => {
     const newMessage: Message = {
       id: Date.now().toString(),
       type: "user",
-      content: inputValue,
+      content: queryText,
       timestamp: new Date(),
       chat_id: activeChatId
     };
     setMessages(prev => [...prev, newMessage]);
 
+    // Update session title if it's the default
     setConversations(prev => prev.map(c =>
       c.id === activeChatId && c.title === 'Advisor Session'
-        ? { ...c, title: inputValue.slice(0, 30) + (inputValue.length > 30 ? '...' : '') }
+        ? { ...c, title: queryText.slice(0, 30) + (queryText.length > 30 ? '...' : '') }
         : c
     ));
 
-    const currentQuery = inputValue;
-    setInputValue("");
     setIsTyping(true);
 
     try {
-      const response = await sendChat(currentQuery, activeChatId);
+      const response = await sendChat(queryText, activeChatId);
       const botReply: Message = {
         id: Date.now().toString(),
         type: "bot",
@@ -170,6 +188,13 @@ const ChatbotPage: React.FC = () => {
     } finally { setIsTyping(false); }
   };
 
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return;
+    const query = inputValue;
+    setInputValue("");
+    submitQuery(query);
+  };
+
   // Export chat
   const exportChat = () => {
     const chatHistory = messages.map(m => `${m.type.toUpperCase()}: ${m.content}`).join("\n\n");
@@ -184,10 +209,13 @@ const ChatbotPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const activeMessages = messages.filter(m => m.chat_id === activeChatId);
+  const showStarters = activeMessages.length <= 1;
+
   return (
     <div className="pt-16 h-screen flex bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] text-slate-800 overflow-hidden font-sans">
       {connectionStatus !== 'connected' &&
-        <div className="fixed top-16 left-0 right-0 z-50 bg-red-100 border-b border-red-300 text-red-800 px-4 py-2.5 text-center text-sm flex items-center justify-center shadow-md">
+        <div className="fixed top-16 left-0 right-0 z-50 bg-red-50 border-b border-red-200 text-red-800 px-4 py-2.5 text-center text-sm flex items-center justify-center shadow-md">
           <AlertCircle className="w-4 h-4 mr-2 text-red-600 animate-pulse" />
           <span>FloatAdvisor mainframe offline. Please verify backend instance.</span>
         </div>
@@ -198,7 +226,7 @@ const ChatbotPage: React.FC = () => {
         initial={{ x: -300, opacity: 0 }} 
         animate={{ x: 0, opacity: 1 }} 
         transition={{ type: "spring", stiffness: 100 }}
-        className="w-76 h-full bg-white/80 border-r border-slate-200/80 flex flex-col shadow-lg backdrop-blur-xl z-20"
+        className="w-76 h-full bg-white border-r border-slate-200 flex flex-col shadow-md z-20"
       >
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <div className="flex items-center space-x-2">
@@ -223,7 +251,7 @@ const ChatbotPage: React.FC = () => {
               whileHover={{ x: 4, backgroundColor: "rgba(239, 246, 255, 0.4)" }}
               className={`w-full text-left p-3.5 rounded-xl border flex items-center space-x-3.5 transition-all duration-300 ${
                 activeChatId === chat.id 
-                  ? 'bg-blue-50 border-blue-200/50 text-blue-800 shadow-sm' 
+                  ? 'bg-blue-50 border-blue-200/50 text-blue-800 shadow-sm font-semibold' 
                   : 'border-transparent text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -243,8 +271,9 @@ const ChatbotPage: React.FC = () => {
             />
             <span className="font-mono uppercase tracking-wider">HUD Telemetry</span>
           </label>
-          <div className="text-[10px] font-mono text-slate-500 leading-relaxed bg-white p-2.5 rounded border border-slate-200/80 select-none shadow-sm">
-            {diagnosticText}
+          <div className="text-[10px] font-mono text-slate-500 leading-relaxed bg-white p-2.5 rounded border border-slate-200/80 select-none shadow-sm flex items-center space-x-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+            <span className="truncate">{diagnosticText}</span>
           </div>
         </div>
       </motion.div>
@@ -255,7 +284,7 @@ const ChatbotPage: React.FC = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
 
         {/* Chat Header */}
-        <div className="bg-white/95 border-b border-slate-200/80 p-4.5 z-10 shadow-sm backdrop-blur-md">
+        <div className="bg-white border-b border-slate-200/80 p-4.5 z-10 shadow-sm backdrop-blur-md">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -278,7 +307,7 @@ const ChatbotPage: React.FC = () => {
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
                 onClick={handleDeleteChat} 
-                className="flex items-center space-x-2 px-4 py-2.5 bg-red-50/50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors shadow-sm"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span className="text-xs uppercase tracking-wider font-semibold">Purge</span>
@@ -287,7 +316,7 @@ const ChatbotPage: React.FC = () => {
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
                 onClick={exportChat} 
-                className="flex items-center space-x-2 px-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-100/80 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-100/80 transition-colors shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span className="text-xs uppercase tracking-wider font-semibold">Export</span>
@@ -297,10 +326,10 @@ const ChatbotPage: React.FC = () => {
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-6 z-10 scrollbar-thin scrollbar-thumb-slate-200">
-          <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 z-10 scrollbar-thin scrollbar-thumb-slate-200 flex flex-col justify-between">
+          <div className="max-w-4xl w-full mx-auto space-y-6 flex-grow">
             <AnimatePresence>
-              {messages.filter(m => m.chat_id === activeChatId).map(msg => (
+              {activeMessages.map(msg => (
                 <motion.div 
                   key={msg.id} 
                   initial={{ opacity: 0, y: 15 }} 
@@ -367,10 +396,37 @@ const ChatbotPage: React.FC = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Quick Actions / Starter Cards */}
+          {showStarters && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="max-w-4xl w-full mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"
+            >
+              {quickActions.map((action, i) => (
+                <motion.button
+                  key={i}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => submitQuery(action.prompt)}
+                  className="bg-white border border-slate-200/80 rounded-xl p-5 text-left shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300 flex flex-col justify-between h-40"
+                >
+                  <div className={`p-2.5 rounded-lg border inline-block ${action.color} mb-3`}>
+                    <action.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm mb-1">{action.title}</h3>
+                    <p className="text-slate-500 text-xs leading-relaxed">{action.description}</p>
+                  </div>
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
         </div>
 
         {/* Input Box */}
-        <div className="p-5 bg-white/95 border-t border-slate-200/80 z-10 shadow-lg">
+        <div className="p-5 bg-white border-t border-slate-200/80 z-10 shadow-lg">
           <div className="max-w-4xl mx-auto flex items-center space-x-4">
             <div className="flex-1 relative">
               <input 
