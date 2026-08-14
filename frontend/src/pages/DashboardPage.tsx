@@ -16,17 +16,17 @@ type ErrorDisplayProps = {
 
 const LoadingIndicator = () => (
   <div className="flex flex-col items-center justify-center h-[75vh] text-slate-400">
-    <Loader className="w-12 h-12 animate-spin mb-4 text-cyan-400" />
-    <p className="text-lg">Generating Visualization...</p>
-    <p>This may take a moment.</p>
+    <Loader className="w-12 h-12 animate-spin mb-4 text-blue-500" />
+    <p className="text-lg font-medium text-slate-700">Generating Visualization...</p>
+    <p className="text-sm text-slate-500">This may take a moment.</p>
   </div>
 );
 
 const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
-  <div className="flex flex-col items-center justify-center h-[75vh] text-red-400">
+  <div className="flex flex-col items-center justify-center h-[75vh] text-red-500">
     <AlertTriangle className="w-12 h-12 mb-4" />
     <p className="text-lg font-semibold">An Error Occurred</p>
-    <p>{message || "Could not retrieve visualization data."}</p>
+    <p className="text-sm text-slate-600">{message || "Could not retrieve visualization data."}</p>
   </div>
 );
 
@@ -84,12 +84,12 @@ const DashboardPage = () => {
   }, [selectedParameter, dateRange, selectedRegion]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-16 min-h-screen bg-[#066FC1]">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-16 min-h-screen bg-slate-50 text-slate-800">
       {/* Header */}
-      <div className="bg-[#182a45]/80 backdrop-blur-sm border-b border-[#2a3c5a] p-6">
+      <div className="bg-white border-b border-slate-200/80 p-6 shadow-sm">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-2">Ocean Data Dashboard</h1>
-          <p className="text-slate-400">Interactive exploration of ARGO float measurements</p>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">Ocean Data Dashboard</h1>
+          <p className="text-slate-500 text-sm">Interactive exploration of ARGO float measurements</p>
         </div>
       </div>
 
@@ -97,24 +97,24 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filters */}
           <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="lg:col-span-1">
-            <div className="bg-[#182a45] rounded-xl p-6 border border-[#2a3c5a] sticky top-24">
-              <div className="flex items-center space-x-2 mb-6">
-                <Filter className="w-5 h-5 text-cyan-400" />
-                <h2 className="text-lg font-semibold text-white">Filters</h2>
+            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm sticky top-24">
+              <div className="flex items-center space-x-2 mb-6 pb-2 border-b border-slate-100">
+                <Filter className="w-5 h-5 text-blue-500" />
+                <h2 className="text-lg font-semibold text-slate-800">Filters</h2>
               </div>
 
               {/* Parameter */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-300 mb-3">Parameter</label>
+                <label className="block text-sm font-medium text-slate-600 mb-3">Parameter</label>
                 <div className="space-y-2">
                   {parameters.map(p => (
                     <motion.button key={p.id} onClick={() => setSelectedParameter(p.id)}
-                      className={`w-full p-3 rounded-lg text-left transition-all duration-200 ${selectedParameter === p.id ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400' : 'bg-slate-700/30 border border-slate-600/30 text-slate-300 hover:bg-slate-600/30'}`}>
+                      className={`w-full p-3 rounded-lg text-left transition-all duration-200 ${selectedParameter === p.id ? 'bg-blue-50 border border-blue-200 text-blue-800 shadow-sm' : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'}`}>
                       <div className="flex items-center space-x-3">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }} />
                         <div>
-                          <p className="font-medium">{p.label}</p>
-                          <p className="text-sm opacity-75">{p.unit}</p>
+                          <p className="font-semibold text-sm">{p.label}</p>
+                          <p className="text-xs opacity-75">{p.unit}</p>
                         </div>
                       </div>
                     </motion.button>
@@ -124,8 +124,8 @@ const DashboardPage = () => {
 
               {/* Date Range */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-300 mb-3">Date Range</label>
-                <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-300 focus:border-cyan-500/50 focus:outline-none">
+                <label className="block text-sm font-medium text-slate-600 mb-3">Date Range</label>
+                <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-slate-700 focus:border-blue-500 focus:outline-none text-sm">
                   <option value="6months">Last 6 Months</option>
                   <option value="1year">Last Year</option>
                   <option value="5years">Last 5 Years</option>
@@ -134,8 +134,8 @@ const DashboardPage = () => {
 
               {/* Region */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-3">Region</label>
-                <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)} className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-300 focus:border-cyan-500/50 focus:outline-none">
+                <label className="block text-sm font-medium text-slate-600 mb-3">Region</label>
+                <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-slate-700 focus:border-blue-500 focus:outline-none text-sm">
                   <option value="global">Global Ocean</option>
                   <option value="indian">Indian Ocean</option>
                   <option value="atlantic">North Atlantic</option>
@@ -147,14 +147,14 @@ const DashboardPage = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
-            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.1 }} className="bg-[#182a45] rounded-xl p-6 border border-[#2a3c5a]">
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.1 }} className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm overflow-hidden">
               {isLoading ? <LoadingIndicator /> : error ? <ErrorDisplay message={error} /> : mapFigure ? (
                 <Plot data={mapFigure.data} layout={mapFigure.layout} useResizeHandler style={{ width: '100%', height: '75vh' }} config={{ responsive: true }} />
-              ) : <p className="text-white">No map data available for selected filters.</p>}
+              ) : <p className="text-slate-500 font-medium">No map data available for selected filters.</p>}
             </motion.div>
 
             {chartFigure && (
-              <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.2 }} className="bg-[#182a45] rounded-xl p-6 border border-[#2a3c5a]">
+              <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.2 }} className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm overflow-hidden">
                 <Plot data={chartFigure.data} layout={chartFigure.layout} useResizeHandler style={{ width: '100%', height: '400px' }} config={{ responsive: true }} />
               </motion.div>
             )}

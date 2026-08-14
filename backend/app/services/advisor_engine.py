@@ -2,9 +2,9 @@ import datetime
 import random
 from typing import Dict, Any, List
 
-class JarvisEngine:
+class AdvisorEngine:
     """
-    Futuristic dialog and personality system for J.A.R.V.I.S.
+    Futuristic dialog and personality system for FloatAdvisor.
     """
 
     def __init__(self):
@@ -25,7 +25,7 @@ class JarvisEngine:
             period = "evening"
         
         greetings = [
-            f"Good {period}, {user_name}. J.A.R.V.I.S. online. How may I assist your oceanographic research today?",
+            f"Good {period}, {user_name}. FloatAdvisor online. How may I assist your oceanographic research today?",
             f"Diagnostics complete. Systems green. Ready for your instructions, {user_name}.",
             f"Systems online, {user_name}. Connection to global ocean data network secured."
         ]
@@ -33,10 +33,10 @@ class JarvisEngine:
 
     def get_diagnostics(self) -> str:
         phrase = random.choice(self.diagnostic_phrases)
-        return f"[J.A.R.V.I.S. SYSTEM DIAGNOSTIC] {phrase}"
+        return f"[FloatAdvisor SYSTEM DIAGNOSTIC] {phrase}"
 
     def format_agent_response(self, response: str, source_agent: str) -> str:
-        """Add J.A.R.V.I.S. personality styling to agent outputs."""
+        """Add FloatAdvisor personality styling to agent outputs."""
         if "Error" in response:
             return f"Apologies, Sir. I encountered an anomaly while processing. Details: {response}"
         
@@ -55,4 +55,4 @@ class JarvisEngine:
         prefix = random.choice(personality_prefixes)
         return f"{prefix}\n\n{response}"
 
-jarvis_engine = JarvisEngine()
+advisor_engine = AdvisorEngine()

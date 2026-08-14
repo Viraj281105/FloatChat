@@ -10,7 +10,7 @@ from app.services.data_agent import DataAgent
 from app.services.geographic_agent import GeographicAgent
 from app.services.visualization_agent import VisualizationAgent
 
-from app.services.jarvis_engine import jarvis_engine
+from app.services.advisor_engine import advisor_engine
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ def initialize_system():
 @router.get("/health", tags=["System"])
 async def health_check():
     if system_state.is_ready:
-        diag = jarvis_engine.get_diagnostics()
+        diag = advisor_engine.get_diagnostics()
         return {"status": "healthy", "diagnostic": diag}
     raise HTTPException(status_code=503, detail="Application is not ready")
 
@@ -80,11 +80,11 @@ async def chat_endpoint(request: ChatRequest, orchestrator: OrchestratorAgent = 
         # Check if the query is a simple diagnostic request
         lower_query = request.query.lower()
         if any(w in lower_query for w in ["status", "diagnostics", "health", "system"]):
-            response_text = f"{jarvis_engine.get_diagnostics()}\n\n{jarvis_engine.get_greeting()}"
+            response_text = f"{advisor_engine.get_diagnostics()}\n\n{advisor_engine.get_greeting()}"
             return ChatResponse(
                 success=True,
                 response=response_text,
-                source_agent="J.A.R.V.I.S. Diagnostics"
+                source_agent="FloatAdvisor Diagnostics"
             )
 
         response = orchestrator.route_request(
@@ -94,8 +94,8 @@ async def chat_endpoint(request: ChatRequest, orchestrator: OrchestratorAgent = 
         raw_res = response.get("response", "No response")
         source = response.get("source_agent", "unknown")
         
-        # Style response with J.A.R.V.I.S. personality
-        formatted_res = jarvis_engine.format_agent_response(raw_res, source)
+        # Style response with FloatAdvisor personality
+        formatted_res = advisor_engine.format_agent_response(raw_res, source)
         
         return ChatResponse(
             success=True,
