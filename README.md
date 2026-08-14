@@ -1,43 +1,37 @@
-# FloatChat 🌊
+# FloatChat: Project J.A.R.V.I.S. 🌊🤖
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-54.3%25-3178C6)](https://www.typescriptlang.org/)
-[![Python](https://img.shields.io/badge/Python-44.1%25-blue)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-Vite-61DAFB)](https://react.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688)](https://fastapi.tiangolo.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E)](https://supabase.com/)
-![GitHub stars](https://img.shields.io/github/stars/Viraj281105/FloatChat?style=social)
-
-FloatChat is an AI-powered conversational platform for exploring global oceanographic data from the ARGO float network. Ask questions in natural language and get instant insights, analysis, and visualizations about the state of our oceans.
+FloatChat is an immersive, AI-powered conversational platform for exploring global oceanographic data from the ARGO float network. Inspired by J.A.R.V.I.S., the system acts as an interactive science advisor, allowing you to query, analyze, and visualize complex physical ocean data in plain English.
 
 ---
 
 ## ✨ Features
 
-- **Conversational AI** — Interact with vast datasets using plain English. No code required.
-- **Global Ocean Coverage** — Access real-time data from thousands of active ARGO floats across all major ocean basins.
-- **Advanced Analytics** — Get AI-powered insights and trend analysis for temperature, salinity, and other key ocean parameters.
-- **On-the-Fly Visualizations** — Generate charts and maps directly from your conversation.
+- **J.A.R.V.I.S. Orchestration Engine**: Multi-agent system that routes user queries dynamically between specialist agents (Data, Geographic, and Visualization).
+- **Global Ocean Coverage**: Instant access to real-time temperature, salinity, and biogeochemical profiles from thousands of active ARGO floats.
+- **Glassmorphic Sci-Fi Dashboard**: Sleek dark-mode interface with responsive, interactive data panels.
+- **On-the-Fly Visualizations**: Instant map generation and temporal trend analysis powered by Plotly.
 
 ---
 
-## 🛠️ Technology Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | React, Vite, TypeScript, Tailwind CSS |
-| **Backend** | Python, FastAPI, Uvicorn |
-| **Database** | Supabase (PostgreSQL) |
-| **AI** | Retrieval-Augmented Generation (RAG) pipelines |
-
----
-
-## 📁 Repository Structure
+## 📂 Project Architecture
 
 ```
 FloatChat/
-├── backend/        # FastAPI server, RAG pipeline, ARGO data integration
-├── frontend/       # React + Vite + TypeScript UI, Tailwind CSS
-├── .gitignore
+├── backend/
+│   ├── app/
+│   │   ├── api/             # API Router & Route handlers (endpoints.py)
+│   │   ├── core/            # Configuration variables & client initializers
+│   │   ├── models/          # Pydantic schemas (chat.py)
+│   │   └── services/        # Specialist agents & core domain experts
+│   └── main.py              # Application entrypoint
+├── frontend/
+│   ├── src/
+│   │   ├── components/      # Reusable UI widgets & common layout items
+│   │   ├── context/         # Auth & global state management
+│   │   ├── lib/             # Third-party client interfaces (supabase)
+│   │   ├── pages/           # Screen views (Chat, Dashboard, Reports)
+│   │   └── services/        # API service layer
+│   └── tsconfig.json        # TypeScript configuration
 └── README.md
 ```
 
@@ -46,126 +40,51 @@ FloatChat/
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- [Git](https://git-scm.com/)
-- [Python 3.9+](https://www.python.org/downloads/)
-- [Node.js 18+](https://nodejs.org/) and npm
-
----
+- [Python](https://www.python.org/downloads/) (version 3.9+)
+- [Node.js](https://nodejs.org/) (version 18+)
 
 ### ⚙️ Installation & Setup
 
-**1. Clone the Repository**
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Viraj281105/FloatChat.git
+   cd FloatChat
+   ```
 
-```bash
-git clone https://github.com/Viraj281105/FloatChat.git
-cd FloatChat
-```
+2. **Set Up the Backend**
+   ```bash
+   cd backend
+   # Create and activate virtual environment
+   python -m venv venv
+   .\venv\Scripts\activate  # On macOS/Linux: source venv/bin/activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   ```
 
-**2. Set Up the Backend (Python)**
+3. **Set Up the Frontend**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
 
-```bash
-cd backend
-
-# Create and activate a virtual environment
-python -m venv venv
-
-# Windows:
-.\venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-**3. Set Up the Frontend (React)**
-
-```bash
-cd frontend
-npm install
-```
-
-**4. Configure Environment Variables**
-
-Create `.env` files for both services:
-
-**`frontend/.env.local`**
-```env
-VITE_SUPABASE_URL="https://your-project-url.supabase.co"
-VITE_SUPABASE_ANON_KEY="your-supabase-anon-key"
-```
-
-**`backend/.env`**
-```env
-SUPABASE_URL="https://your-project-url.supabase.co"
-SUPABASE_SERVICE_KEY="your-supabase-service-key"
-# Add any other backend keys here
-```
-
-> ⚠️ Never commit `.env` or `.env.local` files — they are already listed in `.gitignore`.
+4. **Environment Variables**
+   - Place a `.env` file in the `backend/` directory specifying your `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and database variables.
 
 ---
 
-## ▶️ Running the Application
+## ⚡ Running the Application
 
-Run the backend and frontend in **two separate terminals**.
-
-**Terminal 1 — Backend**
-
+### 1. Start the Backend API
 ```bash
-cd backend
-source venv/bin/activate   # or .\venv\Scripts\activate on Windows
+# In /backend directory (venv activated)
 uvicorn main:app --reload
 ```
+Runs at `http://127.0.0.1:8000`.
 
-Backend API running at: 👉 `http://127.0.0.1:8000`
-
-**Terminal 2 — Frontend**
-
+### 2. Start the Frontend Dev Server
 ```bash
-cd frontend
+# In /frontend directory
 npm run dev
 ```
-
-Frontend running at: 👉 `http://localhost:5173`
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome and greatly appreciated! To contribute:
-
-1. **Fork** the repository on GitHub
-2. **Clone** your fork locally:
-   ```bash
-   git clone https://github.com/your-username/FloatChat.git
-   ```
-3. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-4. **Commit your changes:**
-   ```bash
-   git add .
-   git commit -m "Add your feature description"
-   ```
-5. **Push to your fork:**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-6. **Open a Pull Request** from your fork to the main repository.
-
----
-
-## 📜 License
-
-Distributed under the MIT License.
-
----
-
-## 📧 Contact
-
-**Viraj Jadhao**
-📂 [github.com/Viraj281105](https://github.com/Viraj281105)
-🔗 Project: [github.com/Viraj281105/FloatChat](https://github.com/Viraj281105/FloatChat)
+Runs at `http://localhost:5173`.
