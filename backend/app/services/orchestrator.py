@@ -4,8 +4,7 @@ import re
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
 
-from app.agents.base import BaseAgent
-import pandas as pd  # for type checks if needed
+from app.services.base_agent import BaseAgent
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)

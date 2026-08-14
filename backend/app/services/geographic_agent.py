@@ -1,7 +1,7 @@
 import re
 from typing import Dict, Any, Optional, Pattern
-from app.agents.base import BaseAgent
-from geo_intelligence import expert
+from app.services.base_agent import BaseAgent
+from app.services.geo_expert import expert
 
 
 class GeographicAgent(BaseAgent):
@@ -12,6 +12,7 @@ class GeographicAgent(BaseAgent):
     """
 
     def __init__(self):
+        super().__init__()
         print("Initializing GeographicAgent...")
         self.expert = expert
         self._build_nlu_patterns()

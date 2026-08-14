@@ -1,4 +1,4 @@
-# geo_intelligence.py
+# app/services/geo_expert.py
 from typing import Dict, List, Optional, Any
 
 
@@ -123,7 +123,7 @@ class GeoIntelligenceExpert:
                     "southwest": "Summer monsoon bringing heavy rains to South Asia (June-September)",
                     "northeast": "Winter monsoon with dry conditions and offshore winds (December-March)",
                     "pre_monsoon": "Transition period with increasing temperatures and isolated storms",
-                    "post_monsoon": "Retreat phase with decreasing rainfall and changing wind patterns"
+                    "post_monsoon": "Retreat phase with changing wind patterns"
                 },
                 "oceanographic_effects": [
                     "Dramatic changes in current directions",

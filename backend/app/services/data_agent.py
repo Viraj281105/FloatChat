@@ -1,23 +1,20 @@
-import os
 import re
-from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
 import pandas as pd
 import requests
-from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from sqlalchemy import create_engine, text
 
-from app.agents.base import BaseAgent
-from geo_intelligence import expert
+from app.core.config import settings
+from app.services.base_agent import BaseAgent
+from app.services.geo_expert import expert
 
 
 class DataAgent(BaseAgent):
     def __init__(self):
+        super().__init__()
         print("Initializing DataAgent...")
-        env_path = Path(__file__).resolve().parents[2] / '.env'
-        load_dotenv(dotenv_path=env_path)
 
         self.db_params = self._build_db_params()
         self._setup_nlu_patterns()
@@ -25,10 +22,10 @@ class DataAgent(BaseAgent):
         print("Loading embedding model...")
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-        self.supa_url = os.getenv("SUPABASE_URL")
-        self.supa_key = os.getenv("SUPABASE_SERVICE_KEY")
+        self.supa_url = settings.SUPABASE_URL
+        self.supa_key = settings.SUPABASE_SERVICE_KEY
         if not self.supa_url or not self.supa_key:
-            raise ValueError("SUPABASE_URL or SUPABASE_SERVICE_KEY not set in .env file.")
+            raise ValueError("SUPABASE_URL or SUPABASE_SERVICE_KEY not set in configuration.")
 
         # SQLAlchemy engine
         self.engine = create_engine(
@@ -38,14 +35,14 @@ class DataAgent(BaseAgent):
 
         print("DataAgent initialized successfully.")
 
-    # ---------------- DB & Env Setup ----------------
+    # ---------------- DB Setup ----------------
     def _build_db_params(self) -> Dict[str, str]:
         return {
-            "host": os.getenv("DB_HOST"),
-            "port": os.getenv("DB_PORT"),
-            "user": os.getenv("DB_USER"),
-            "password": os.getenv("DB_PASSWORD"),
-            "database": os.getenv("DB_NAME")
+            "host": settings.DB_HOST,
+            "port": settings.DB_PORT,
+            "user": settings.DB_USER,
+            "password": settings.DB_PASSWORD,
+            "database": settings.DB_NAME
         }
 
     def _setup_nlu_patterns(self) -> None:
@@ -93,9 +90,6 @@ class DataAgent(BaseAgent):
 
     # ---------------- Dynamic SQL Builder ----------------
     def _build_dynamic_query(self, task: str, relevant_prof_ids: Optional[List[str]] = None) -> Tuple[str, Tuple]:
-        """
-        Builds SQL query dynamically, ensuring latitude, longitude, and prof_id are always included.
-        """
         params, clauses = [], []
 
         if relevant_prof_ids:

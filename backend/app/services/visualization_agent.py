@@ -1,11 +1,10 @@
-# app/agents/visualization_agent.py
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, Any
 
-from app.agents.base import BaseAgent
-from app.agents.data_agent import DataAgent
+from app.services.base_agent import BaseAgent
+from app.services.data_agent import DataAgent
 
 
 class VisualizationAgent(BaseAgent):
@@ -14,8 +13,8 @@ class VisualizationAgent(BaseAgent):
     """
 
     def __init__(self, data_agent: DataAgent):
+        super().__init__()
         print("Initializing VisualizationAgent...")
-        # Use the passed DataAgent instead of creating a new one
         self.data_agent = data_agent
         print("VisualizationAgent initialized successfully.")
 

@@ -1,5 +1,20 @@
-from dataclasses import dataclass, field
+from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
+from dataclasses import dataclass
+
+class ChatRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=5000)
+    session_id: str = Field(default="default_session", min_length=1, max_length=100)
+
+class ChatResponse(BaseModel):
+    success: bool
+    response: Any
+    source_agent: str
+
+class VisualizationRequest(BaseModel):
+    parameter: str
+    date_range: str
+    region: str
 
 @dataclass
 class QueryIntent:

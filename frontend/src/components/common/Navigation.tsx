@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Menu, X, MessageCircle, BarChart3, 
   FileText, User, LogOut, Home 
 } from 'lucide-react';
 
 // 1. Import the logo image
-import heroLogo from '../assets/images/hero-logo.png';
+import heroLogo from '../../assets/images/hero-logo.png';
 
 const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

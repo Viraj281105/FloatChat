@@ -4,10 +4,10 @@ import { AnimatePresence } from 'framer-motion';
 
 // Import the auth components
 import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Import pages
-import Navigation from './components/Navigation';
+import Navigation from './components/common/Navigation';
 import HomePage from './pages/HomePage';
 import ChatbotPage from './pages/ChatbotPage';
 import DashboardPage from './pages/DashboardPage';
