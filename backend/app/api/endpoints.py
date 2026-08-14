@@ -10,6 +10,8 @@ from app.services.data_agent import DataAgent
 from app.services.geographic_agent import GeographicAgent
 from app.services.visualization_agent import VisualizationAgent
 
+from app.services.jarvis_engine import jarvis_engine
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -55,7 +57,8 @@ def initialize_system():
 @router.get("/health", tags=["System"])
 async def health_check():
     if system_state.is_ready:
-        return {"status": "healthy"}
+        diag = jarvis_engine.get_diagnostics()
+        return {"status": "healthy", "diagnostic": diag}
     raise HTTPException(status_code=503, detail="Application is not ready")
 
 @router.post("/visualize", tags=["Visualization"])
@@ -74,14 +77,30 @@ async def visualize_endpoint(request: VisualizationRequest, orchestrator: Orches
 @router.post("/chat", response_model=ChatResponse, tags=["Chat"])
 async def chat_endpoint(request: ChatRequest, orchestrator: OrchestratorAgent = Depends(get_orchestrator)):
     try:
+        # Check if the query is a simple diagnostic request
+        lower_query = request.query.lower()
+        if any(w in lower_query for w in ["status", "diagnostics", "health", "system"]):
+            response_text = f"{jarvis_engine.get_diagnostics()}\n\n{jarvis_engine.get_greeting()}"
+            return ChatResponse(
+                success=True,
+                response=response_text,
+                source_agent="J.A.R.V.I.S. Diagnostics"
+            )
+
         response = orchestrator.route_request(
             user_query=request.query,
             session_id=request.session_id
         )
+        raw_res = response.get("response", "No response")
+        source = response.get("source_agent", "unknown")
+        
+        # Style response with J.A.R.V.I.S. personality
+        formatted_res = jarvis_engine.format_agent_response(raw_res, source)
+        
         return ChatResponse(
             success=True,
-            response=response.get("response", "No response"),
-            source_agent=response.get("source_agent", "unknown")
+            response=formatted_res,
+            source_agent=source
         )
     except Exception as e:
         logger.error(f"Chat request failed: {e}", exc_info=True)
